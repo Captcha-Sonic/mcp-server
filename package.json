@@ -1,38 +1,43 @@
 {
   "name": "@captchasonic/mcp-server",
-  "version": "1.0.0",
-  "description": "MCP server — lets Claude and any AI agent solve CAPTCHAs via the CaptchaSonic API",
+  "version": "2.0.0",
+  "description": "CaptchaSonic MCP server: lets Claude and any MCP client solve CAPTCHAs. Hosted at https://mcp.captchasonic.com, or run locally over stdio.",
   "type": "module",
   "main": "./dist/index.js",
-  "bin": {
-    "sonic-mcp": "./dist/index.js"
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   },
-  "files": ["dist/**", "README.md", "LICENSE"],
+  "bin": {
+    "sonic-mcp": "./dist/cli.js"
+  },
+  "files": ["dist/**", "!dist/**/*.test.*", "README.md", "LICENSE"],
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
+    "test": "tsc && node --test \"dist/**/*.test.js\"",
+    "start": "node dist/cli.js",
     "prepare": "npm run build"
   },
-  "keywords": ["mcp", "captcha", "popularcaptcha", "recaptcha", "captchasonic", "claude", "ai-agent"],
+  "keywords": ["mcp", "model-context-protocol", "captcha", "recaptcha", "turnstile", "hcaptcha", "geetest", "captchasonic", "claude", "ai-agent"],
   "license": "MIT",
   "author": "CaptchaSonic <support@captchasonic.com>",
-  "homepage": "https://captchasonic.com",
+  "homepage": "https://captchasonic.com/en/docs/mcp/get-started",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Captcha-Sonic/mcp-server"
+    "url": "git+https://github.com/Captcha-Sonic/mcp-server.git"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
-    "@connectrpc/connect": "^2.1.1",
-    "@connectrpc/connect-node": "^2.1.1",
-    "@bufbuild/protobuf": "^2.12.0",
-    "captchasonic": "^2.2.0"
+    "@modelcontextprotocol/sdk": "^1.31.0",
+    "zod": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.6.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.3"
   }
 }

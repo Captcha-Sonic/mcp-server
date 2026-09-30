@@ -1,4 +1,7 @@
-# Publish @captchasonic/mcp-server to npm on version tag
+# Publish @captchasonic/mcp-server to npm on version tag.
+# Uses npm trusted publishing (OIDC) like captchasonic-js — no NPM_TOKEN secret.
+# One-time setup on npmjs.com: package settings → Trusted Publisher → GitHub Actions,
+# owner Captcha-Sonic, repository mcp-server, workflow publish.yml.
 name: Publish MCP Server to npm
 
 on:
@@ -10,24 +13,32 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Ensure latest npm
+        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Test
+        run: npm test
+
+      - name: Check tag matches package.json version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/v}"
+          PKG=$(node -p "require('./package.json').version")
+          if [ "$TAG" != "$PKG" ]; then echo "Tag v$TAG != package.json $PKG"; exit 1; fi
 
       - name: Verify package
         run: npm publish --dry-run
 
-      - name: Publish (scoped, public)
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish with provenance
+        run: npm publish --access public --provenance
