@@ -38,7 +38,14 @@ jobs:
           if [ "$TAG" != "$PKG" ]; then echo "Tag v$TAG != package.json $PKG"; exit 1; fi
 
       - name: Verify package
-        run: npm publish --dry-run
+        # npm silently drops fields it considers invalid (e.g. a bin path starting
+        # with "./"); fail instead of publishing a package without its command.
+        run: |
+          npm publish --dry-run 2>&1 | tee publish-dry-run.log
+          if grep -q "auto-corrected some errors" publish-dry-run.log; then
+            echo "::error::npm auto-corrected package.json; fix it (npm pkg fix) before publishing"
+            exit 1
+          fi
 
       - name: Publish with provenance
         run: npm publish --access public --provenance
